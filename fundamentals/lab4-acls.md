@@ -23,3 +23,19 @@ Implementar una lista de Control de Acceso (ACL) extendida para denegar la comun
 - **Ping PC1 a Gateway**: Funciona, confirmando que el router sigue respondiendo a su propia IP.
 - **Lecciones de ingenieria**: El orden de las reglas en una ACL es fundamental. Si Hubieramos puesto el 'permit ip any any' antes del 'deny', el trafico bloqueado habria pasado porque la primera regla que coincide es la que se aplica. Ademas, el uso de 'host' es una forma deficiente de especificar una unica IP (equivale a una mas cara wildcard 0.0.0.0).
 
+## Laboratorio extra: ACLs Multiple en diferentes interfaces
+
+### Objetivo
+Aplicar una segunda ACL (ACL 102) en la subinterfaz de la VLAN 20 para bloquear el acceso de PC2 a la gestion de SW1, sin afectar a PC1 (VLAN 10).
+
+### Configuracion
+- **ACL 102**:
+ 	- 'deny ip host 192.168.20.10 host 192.168.99.11'
+	- 'permit ip any any'
+- **Aplicacion**: 'interface gigabitethernet0/0.20' -> 'ip access-group 102 in'
+
+### Verificacion y contadores
+- La ACL 102 bloqueo el trafico de PC2 a SW1. Los contadores de la ACL muestran '4 match(es)' en la regla 'deny', confirmando que el router descarto los paquetes.
+- PC2 pudo seguir accediendo a su gateway gracias a la regla 'permit ip any any'
+- **Nota sobre Packet tracer:** Se observo un comportamiento anomalo (bug) en el simulador al hacer ping desde PC1 hacia la SVI de SW1. Sin embargo, el contador de la ACL 100 (que permite el trafico de PC1) aumento, demostrando que el trafico si paso. Los contadores de las ACLs son la evidencia definitva del funcionamiento.
+
